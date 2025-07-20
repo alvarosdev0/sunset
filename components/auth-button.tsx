@@ -1,27 +1,51 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/client"; // asegúrate de usar el cliente para el navegador
 import { LogoutButton } from "./logout-button";
+import { User } from "@supabase/supabase-js";
 
-export async function AuthButton() {
-  const supabase = await createClient();
+export function AuthButton() {
+  const [user, setUser] = useState<User | null>(null);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [authReady, setAuthReady] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setAuthReady(true);
+    };
+
+    fetchSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthReady(true);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+  if (!authReady || isLoggingOut) return null;
 
   return user ? (
     <div className="flex items-center gap-4">
       Hey, {user.email}!
-      <LogoutButton />
+      <LogoutButton onStartLogout={() => setIsLoggingOut(true)} />
     </div>
   ) : (
     <div className="flex gap-2">
       <Button asChild size="sm" variant={"outline"}>
-        <Link href="/auth/login">Registrarse</Link>
+        <Link href="/auth/login">Sign in</Link>
       </Button>
       <Button asChild size="sm" variant={"default"}>
-        <Link href="/auth/sign-up">Iniciar sesión</Link>
+        <Link href="/auth/sign-up">Sign up</Link>
       </Button>
     </div>
   );

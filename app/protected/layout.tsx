@@ -1,17 +1,52 @@
+"use client";
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { DeployButton } from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
-import Link from "next/link";
+import Head from "next/head";
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
+  // ✅ Client-side check to catch "back" navigation
+  useEffect(() => {
+    const verifySession = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        router.replace("/auth/login");
+      }
+    };
+
+    verifySession();
+
+    // 🔁 Detect if page was restored from history
+    window.addEventListener("pageshow", verifySession);
+    return () => window.removeEventListener("pageshow", verifySession);
+  }, [router]);
+
   return (
     <main className="min-h-screen flex flex-col items-center">
+      <Head>
+        <meta
+          httpEquiv="Cache-Control"
+          content="no-store, no-cache, must-revalidate"
+        />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </Head>
+
       <div className="flex-1 w-full flex flex-col gap-20 items-center">
         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
           <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
@@ -24,6 +59,7 @@ export default function ProtectedLayout({
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
           </div>
         </nav>
+
         <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
           {children}
         </div>
