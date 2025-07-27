@@ -10,7 +10,7 @@ export default function AuthCallback() {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        router.replace("/protected");
+        router.replace("/dashboard");
       } else {
         router.replace("/login?error=session");
       }

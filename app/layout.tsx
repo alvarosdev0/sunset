@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { MenuNav } from "@/components/nav-menu";
+import Link from "next/link";
+import { hasEnvVars } from "@/lib/utils";
+import { EnvVarWarning } from "@/components/env-var-warning";
+import { AuthButton } from "@/components/auth-button";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Toaster } from "sonner";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -9,7 +16,7 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
+  title: "Sunset",
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
@@ -33,7 +40,22 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <QueryProvider>
+            <div className="px-10 py-2">
+              <nav className="flex justify-between">
+                <Link
+                  href={"/"}
+                  className="uppercase font-bold text-xl text-center"
+                >
+                  Sunset
+                </Link>
+                <MenuNav />
+                {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+              </nav>
+            </div>
+            {children}
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
