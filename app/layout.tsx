@@ -42,7 +42,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <div className="px-10 py-2">
-              <nav className="flex justify-between">
+              <nav className="flex justify-between items-center">
                 <Link
                   href={"/"}
                   className="uppercase font-bold text-xl text-center"

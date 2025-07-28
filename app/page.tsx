@@ -25,10 +25,7 @@ export default function Home() {
     <div className="px-10 overflow-x-hidden pb-10">
       <div className="flex flex-col items-center justify-center h-[60vh] gap-2">
         <h1 className="font-black tracking-tighter text-5xl">SUNSET</h1>
-        <p className="text-md">
-          Tu sitio favorito para compartir con personas amantes del cine y tus
-          series favoritas.
-        </p>
+        <p className="text-md">Compartiendo el amor al verdadero cine.</p>
         <div className="flex gap-2">
           <Link href={"/series"}>
             <Button variant="secondary">Series</Button>
